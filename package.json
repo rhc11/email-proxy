@@ -1,0 +1,30 @@
+{
+  "name": "email-proxy",
+  "version": "1.0.0",
+  "description": "Smoobu email to sms",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.js",
+  "scripts": {
+    "dev": "ts-node-dev -r dotenv/config src/index.ts",
+    "start": "node build src/index.js",
+    "clean": "rimraf dist docs tsconfig.tsbuildinfo",
+    "build": "tsc -b",
+    "tsc": "tsc"
+  },
+  "devDependencies": {
+    "@types/imap": "^0.8.40",
+    "@types/mailparser": "^3.4.4",
+    "@types/node": "^20.11.30",
+    "@types/qrcode-terminal": "^0.12.2",
+    "ts-node": "^10.9.2",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.4.3"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "imap": "^0.8.19",
+    "mailparser": "^3.6.9",
+    "qrcode-terminal": "^0.12.0",
+    "whatsapp-web.js": "^1.23.0"
+  }
+}
