@@ -79,7 +79,11 @@ const getMessageValues = (text: string): MsgValues | undefined => {
   }
 }
 
-export const getEmailsAndSendMsg = () => {
+export const getEmailsAndSendMsg = async () => {
+  if ((await whatsappclient.getState()) !== "CONNECTED") {
+    return
+  }
+  
   try {
     const imap = new Imap(imapConfig)
 

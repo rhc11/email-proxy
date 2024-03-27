@@ -18,7 +18,8 @@ whatsappclient.on("ready", () => {
 })
 
 app.get("/health", (_, reply) => {
-  reply.code(200).send({ ok: true })
+  const state = whatsappclient.getState()
+  reply.code(200).send({ ok: true, wState: state })
 })
 
 app.listen({ port: Number(process.env.PORT), host: '0.0.0.0'}, () => {
