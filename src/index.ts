@@ -1,7 +1,6 @@
 import Imap from "imap"
 import { simpleParser } from "mailparser"
-import { whatsappclient } from "./services/whatsappClient"
-import { Location } from "whatsapp-web.js"
+import { whatsappclient, location } from "./services/whatsappClient"
 
 const imapConfig = {
   user: process.env.EMAIL ?? "",
@@ -10,11 +9,6 @@ const imapConfig = {
   port: 993,
   tls: true,
 }
-
-const location = new Location(
-  Number(process.env.LATITUDE),
-  Number(process.env.LONGITUDE)
-)
 
 const getEmailString = (input: string) => {
   const regex = /<([^>]*)>/
@@ -140,10 +134,12 @@ const getEmailsAndSendMsg = () => {
             f.once("end", () => {
               console.log("Done fetching all messages")
               imap.end()
+              return
             })
           } else {
             console.log("Not new emails found")
             imap.end()
+            return
           }
         })
       })
@@ -157,6 +153,13 @@ const getEmailsAndSendMsg = () => {
 
 whatsappclient.initialize()
 whatsappclient.on("ready", () => {
-  getEmailsAndSendMsg()
-  setInterval(getEmailsAndSendMsg, 60000)
+  const recurringFunction = () => {
+    try {
+      getEmailsAndSendMsg()
+    } finally {
+      setTimeout(getEmailsAndSendMsg, 60000)
+    }
+  }
+
+  return recurringFunction()
 })
