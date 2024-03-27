@@ -75,15 +75,17 @@ const getMessageValues = (text: string): MsgValues | undefined => {
     checkinTime: values[1].trim(),
     phone: phoneWithoutPlus,
     room: values[3],
-    code,
+    code
   }
 }
 
 export const getEmailsAndSendMsg = async () => {
-  if ((await whatsappclient.getState()) !== "CONNECTED") {
+  const waState = await whatsappclient.getState()
+  if (waState !== "CONNECTED") {
+    console.log("State not conected ", waState)
     return
   }
-  
+
   try {
     const imap = new Imap(imapConfig)
 
