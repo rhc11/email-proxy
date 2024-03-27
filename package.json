@@ -6,7 +6,7 @@
   "types": "./dist/index.d.js",
   "scripts": {
     "dev": "ts-node-dev -r dotenv/config src/index.ts",
-    "start": "tsc && node dist/index.js",
+    "start": "node dist/index.js",
     "clean": "rimraf dist docs tsconfig.tsbuildinfo",
     "build": "tsc -b",
     "tsc": "tsc"
