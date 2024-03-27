@@ -13,6 +13,10 @@ app.register(cors, { origin: "*", exposedHeaders: ["x-total-count"] })
 
 whatsappclient.initialize()
 whatsappclient.on("ready", () => {
+  app.listen({ port: Number(process.env.PORT), host: "0.0.0.0" }, () => {
+    console.log("Listening in port: ", process.env.PORT)
+  })
+  
   getEmailsAndSendMsg()
   setInterval(getEmailsAndSendMsg, 60000)
 })
@@ -20,8 +24,4 @@ whatsappclient.on("ready", () => {
 app.get("/health", (_, reply) => {
   const state = whatsappclient.getState()
   reply.code(200).send({ ok: true, wState: state })
-})
-
-app.listen({ port: Number(process.env.PORT), host: '0.0.0.0'}, () => {
-  console.log('Listening in port: ', process.env.PORT)
 })
