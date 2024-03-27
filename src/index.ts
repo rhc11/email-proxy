@@ -21,7 +21,7 @@ whatsappclient.on("ready", () => {
   setInterval(getEmailsAndSendMsg, 60000)
 })
 
-app.get("/health", (_, reply) => {
-  const state = whatsappclient.getState()
+app.get("/health", async (_, reply) => {
+  const state = await whatsappclient.getState()
   reply.code(200).send({ ok: true, wState: state })
 })
