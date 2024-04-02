@@ -3,7 +3,6 @@ import { whatsappclient } from "./services/whatsappClient"
 import fastify from "fastify"
 import helmet from "@fastify/helmet"
 import cors from "@fastify/cors"
-import qrcode from "qrcode-terminal"
 
 const app = fastify({
   maxParamLength: 5000,
@@ -11,15 +10,6 @@ const app = fastify({
 
 app.register(helmet)
 app.register(cors, { origin: "*", exposedHeaders: ["x-total-count"] })
-
-whatsappclient.on("qr", async (qr) => {
-  qrcode.generate(qr, { small: true })
-})
-
-whatsappclient.on("disconnected", (reason) => {
-  console.log("Disconnected:", reason)
-  whatsappclient.initialize()
-})
 
 whatsappclient.on("ready", () => {
   console.log("Whataspp client is ready!")
