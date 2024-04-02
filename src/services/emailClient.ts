@@ -159,6 +159,14 @@ export const getEmailsAndSendMsg = async () => {
       })
     })
 
+    imap.once("error", () => {
+      console.log('Imap error')
+    })
+
+    imap.once('end', () => {
+      console.log('Connection ended')
+    })
+
     imap.connect()
   } catch (error) {
     console.log("An error has been occured", error)

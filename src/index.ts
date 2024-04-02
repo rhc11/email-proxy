@@ -3,6 +3,7 @@ import { whatsappclient } from "./services/whatsappClient"
 import fastify from "fastify"
 import helmet from "@fastify/helmet"
 import cors from "@fastify/cors"
+import qrcode from "qrcode-terminal"
 
 const app = fastify({
   maxParamLength: 5000,
@@ -11,7 +12,19 @@ const app = fastify({
 app.register(helmet)
 app.register(cors, { origin: "*", exposedHeaders: ["x-total-count"] })
 
-whatsappclient.initialize()
+whatsappclient.on("qr", async (qr) => {
+  const waState = await whatsappclient.getState()
+  if (waState !== "CONNECTED") {
+    console.log("State not conected, generate qr ", waState)
+    qrcode.generate(qr, { small: true })
+  }
+})
+
+whatsappclient.on("disconnected", (reason) => {
+  console.log("Disconnected:", reason)
+  whatsappclient.initialize()
+})
+
 whatsappclient.on("ready", () => {
   console.log("Whataspp client is ready!")
   app.listen({ port: Number(process.env.PORT), host: "0.0.0.0" }, () => {
@@ -26,3 +39,5 @@ app.get("/health", async (_, reply) => {
   const state = await whatsappclient.getState()
   reply.code(200).send({ ok: true, wState: state })
 })
+
+whatsappclient.initialize()
