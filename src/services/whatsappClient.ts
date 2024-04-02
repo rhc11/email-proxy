@@ -3,6 +3,7 @@ import qrcode from "qrcode-terminal"
 
 export const whatsappclient = new Client({
   authStrategy: new LocalAuth(),
+  webVersion: '2.2412.50'
 })
 
 export const location = new Location(
