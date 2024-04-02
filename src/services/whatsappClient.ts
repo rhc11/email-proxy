@@ -5,8 +5,13 @@ export const whatsappclient = new Client({
   authStrategy: new LocalAuth(),
 })
 
-whatsappclient.on("qr", (qr) => qrcode.generate(qr, { small: true }))
-whatsappclient.on("ready", () => console.log("Whataspp client is ready!"))
+whatsappclient.on("qr", async (qr) => {
+  const waState = await whatsappclient.getState()
+  if (waState !== "CONNECTED") {
+    console.log("State not conected, generate qr ", waState)
+    qrcode.generate(qr, { small: true })
+  }
+})
 
 whatsappclient.on("disconnected", (reason) => {
   console.log("Disconnected:", reason)

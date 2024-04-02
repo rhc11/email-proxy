@@ -13,6 +13,7 @@ app.register(cors, { origin: "*", exposedHeaders: ["x-total-count"] })
 
 whatsappclient.initialize()
 whatsappclient.on("ready", () => {
+  console.log("Whataspp client is ready!")
   app.listen({ port: Number(process.env.PORT), host: "0.0.0.0" }, () => {
     console.log("Listening in port: ", process.env.PORT)
   })
