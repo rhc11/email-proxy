@@ -13,11 +13,7 @@ app.register(helmet)
 app.register(cors, { origin: "*", exposedHeaders: ["x-total-count"] })
 
 whatsappclient.on("qr", async (qr) => {
-  const waState = await whatsappclient.getState()
-  if (waState !== "CONNECTED") {
-    console.log("State not conected, generate qr ", waState)
-    qrcode.generate(qr, { small: true })
-  }
+  qrcode.generate(qr, { small: true })
 })
 
 whatsappclient.on("disconnected", (reason) => {
