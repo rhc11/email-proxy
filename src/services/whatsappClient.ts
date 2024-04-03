@@ -15,7 +15,11 @@ export const location = new Location(
 )
 
 whatsappclient.on("qr", async (qr) => {
-  qrcode.generate(qr, { small: true })
+  const waState = await whatsappclient.getState()
+
+  if (waState !== "CONNECTED") {
+    qrcode.generate(qr, { small: true })
+  }
 })
 
 whatsappclient.on("disconnected", (reason) => {
