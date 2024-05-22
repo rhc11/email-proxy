@@ -34,7 +34,7 @@ const buildMessage = (msgValues: MsgValues) =>
   `Bienvenido a ${process.env.NAME_HOME}. Aquí tienes el código ${msgValues.code} para coger las llaves de la ${msgValues.room}. Se activa el día ${msgValues.day} a las ${msgValues.checkinTime}. Cualquier problema llámame :)`
 
 const buildErrorFormatMessage = (text: string) =>
-  `Error de formato al enviar el mensaje. Es posible que falte es signo | en el mensaje: ${text}`
+  `Error de formato al enviar el mensaje. Es posible que falte el signo | en el mensaje: ${text}`
 
 const buildErrorCodeMessage = (code: string) =>
   `Error de código al enviar el mensaje. La longitud del código debe ser 8: ${code}`
@@ -70,10 +70,14 @@ const getMessageValues = (text: string): MsgValues | undefined => {
   const phoneWithoutPlus =
     phoneParse[0] === "+" ? phoneParse.slice(1) : phoneParse
 
+  const notPrefixCondition = phoneWithoutPlus.length === 9 && (phoneWithoutPlus.charAt(0) === '6' || phoneWithoutPlus.charAt(0) === '7')
+
+  const phoneWithPrefix = notPrefixCondition ? `34${phoneWithoutPlus}` : phoneWithoutPlus
+
   return {
     day: values[0].trim(),
     checkinTime: values[1].trim(),
-    phone: phoneWithoutPlus,
+    phone: phoneWithPrefix,
     room: values[3],
     code
   }
