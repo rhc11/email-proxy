@@ -117,7 +117,7 @@ export const getEmailsAndSendMsg = async () => {
                       : undefined
 
                     if (email) {
-                      const msgValues = getMessageValues(parsed.text ?? "")
+                    /*  const msgValues = getMessageValues(parsed.text ?? "")
 
                       if (msgValues) {
                         const msg = buildMessage(msgValues)
@@ -130,7 +130,7 @@ export const getEmailsAndSendMsg = async () => {
                           `${msgValues.phone}@c.us`,
                           location
                         )
-                      }
+                      }*/
                     } else {
                       console.log("Not valid email: ", emailText)
                     }
