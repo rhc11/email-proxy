@@ -28,6 +28,6 @@
     "imap": "^0.8.19",
     "mailparser": "^3.6.9",
     "qrcode-terminal": "^0.12.0",
-    "whatsapp-web.js": "^1.23.0"
+    "whatsapp-web.js": "github:pedroslopez/whatsapp-web.js#webpack-exodus"
   }
 }

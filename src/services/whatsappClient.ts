@@ -1,14 +1,8 @@
 import { Client, LocalAuth, Location } from "whatsapp-web.js"
 import qrcode from "qrcode-terminal"
 
-const WEB_VERSION = '2.3000.1014580163-alpha'
-
 export const whatsappclient = new Client({
-  authStrategy: new LocalAuth(),
-  webVersionCache: {
-    type: 'remote',
-    remotePath: `https://raw.githubusercontent.com/wppconnect-team/wa-version/main/html/${WEB_VERSION}.html`,
-  },
+  authStrategy: new LocalAuth()
 })
 
 export const location = new Location(
