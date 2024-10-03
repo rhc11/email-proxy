@@ -5,7 +5,7 @@ import { whatsappclient, location } from "./whatsappClient"
 const imapConfig = {
   user: process.env.EMAIL ?? "",
   password: process.env.EMAIL_PASSWORD ?? "",
-  host: "outlook.office365.com",
+  host: "imap.zoho.com",
   port: 993,
   tls: true,
 }
