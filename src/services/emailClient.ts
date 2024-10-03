@@ -163,8 +163,8 @@ export const getEmailsAndSendMsg = async () => {
       })
     })
 
-    imap.once("error", () => {
-      console.log('Imap error')
+    imap.once("error", (ex: any) => {
+      console.log('Imap error', ex)
     })
 
     imap.once('end', () => {
