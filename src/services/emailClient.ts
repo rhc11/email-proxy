@@ -91,7 +91,7 @@ const processEmailAndMsg = async (
     return
   }
 
-  console.log("Fetching new emails", imap)
+  console.log("Fetching new emails", imap.state)
 
   imap.openBox("INBOX", false, () => {
     imap.search(["UNSEEN"], (_err, results) => {
@@ -161,6 +161,7 @@ const processEmailAndMsg = async (
 let imap: Imap | null = null
 
 export const getEmailsAndSendMsg = async () => {
+  console.log('start getEmailsAndSendMsg')
   const waState = await whatsappclient.getState()
   if (waState !== "CONNECTED") {
     console.log("State not conected ", waState)
@@ -170,7 +171,7 @@ export const getEmailsAndSendMsg = async () => {
   try {
 
     if (imap) {
-      console.log('Imap exist')
+      console.log('Imap exist', imap.state)
       await processEmailAndMsg(imap)
     } else {
       console.log('new Imap')
