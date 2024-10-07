@@ -162,13 +162,14 @@ let imap: Imap | null = null
 
 export const getEmailsAndSendMsg = async () => {
   console.log('start getEmailsAndSendMsg')
-  const waState = await whatsappclient.getState()
-  if (waState !== "CONNECTED") {
-    console.log("State not conected ", waState)
-    return
-  }
-
   try {
+    const waState = await whatsappclient.getState()
+    console.log('WhatsApp state:', waState)
+
+    if (waState !== "CONNECTED") {
+      console.log("State not conected ", waState)
+      return
+    }
 
     if (imap) {
       console.log('Imap exist', imap.state)
