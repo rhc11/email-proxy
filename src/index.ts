@@ -17,14 +17,8 @@ whatsappclient.on("ready", () => {
     console.log("Listening in port: ", process.env.PORT)
   })
   
-  setInterval(() => {
-    try {
-      console.log("Running getEmailsAndSendMsg in Interval")
-      getEmailsAndSendMsg()
-    } catch (err) {
-      console.error("Error during getEmailsAndSendMsg in interval:", err)
-    }
-  }, 60000)
+  getEmailsAndSendMsg()
+  setInterval(getEmailsAndSendMsg, 60000)
 })
 
 app.get("/health", async (_, reply) => {
