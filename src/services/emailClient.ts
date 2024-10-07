@@ -83,6 +83,8 @@ const getMessageValues = (text: string): MsgValues | undefined => {
   }
 }
 
+let imap: Imap | null = null
+
 export const getEmailsAndSendMsg = async () => {
   const waState = await whatsappclient.getState()
   if (waState !== "CONNECTED") {
@@ -91,18 +93,37 @@ export const getEmailsAndSendMsg = async () => {
   }
 
   try {
-    const imap = new Imap(imapConfig)
 
-    console.log('Imap ready', imap)
+    if (!imap) {
+      imap = new Imap(imapConfig)
+
+      imap.once("ready", () => {
+        console.log("IMAP connection ready.")
+      })
+
+      imap.once("error", (ex: any) => {
+        console.error("IMAP error: ", ex)
+        imap?.end()
+        imap = null
+      })
+
+      imap.once("end", () => {
+        console.log("IMAP connection ended.")
+        imap = null
+      })
+
+      imap.connect()
+    }
 
     imap.once("ready", () => {
-      imap.openBox("INBOX", false, () => {
+      console.log('Imap ready', imap)
+      imap?.openBox("INBOX", false, () => {
         console.log("Fetching new emails")
-        imap.search(["UNSEEN"], (_err, results) => {
+        imap?.search(["UNSEEN"], (_err, results) => {
           if (results.length > 0) {
-            const f = imap.fetch(results, { bodies: "" })
+            const f = imap?.fetch(results, { bodies: "" })
 
-            f.on("message", (msg) => {
+            f?.on("message", (msg) => {
               msg.on("body", (stream) => {
                 var buffer = ""
 
@@ -142,38 +163,25 @@ export const getEmailsAndSendMsg = async () => {
 
               msg.once("attributes", (attrs) => {
                 const { uid, date } = attrs
-                imap.addFlags(uid, ["\\Seen"], () => {
+                imap?.addFlags(uid, ["\\Seen"], () => {
                   console.log("Marked as read ", uid, date)
                 })
               })
             })
 
-            f.once("error", (ex) => {
-              imap.end()
+            f?.once("error", (ex) => {
               return Promise.reject(ex)
             })
 
-            f.once("end", () => {
+            f?.once("end", () => {
               console.log("Done fetching all messages")
-              imap.end()
             })
           } else {
             console.log("Not new emails found")
-            imap.end()
           }
         })
       })
     })
-
-    imap.once("error", (ex: any) => {
-      console.log('Imap error', ex)
-    })
-
-    imap.once('end', () => {
-      console.log('Connection ended')
-    })
-
-    imap.connect()
   } catch (error) {
     console.log("An error has been occured", error)
   }
