@@ -170,8 +170,10 @@ export const getEmailsAndSendMsg = async () => {
   try {
 
     if (imap) {
+      console.log('Imap exist')
       await processEmailAndMsg(imap)
     } else {
+      console.log('new Imap')
       imap = new Imap(imapConfig)
 
       imap.once("ready", async () => {
