@@ -91,8 +91,9 @@ const processEmailAndMsg = async (
     return
   }
 
+  console.log("Fetching new emails", imap)
+
   imap.openBox("INBOX", false, () => {
-    console.log("Fetching new emails")
     imap.search(["UNSEEN"], (_err, results) => {
       if (results.length > 0) {
         const f = imap.fetch(results, { bodies: "" })
