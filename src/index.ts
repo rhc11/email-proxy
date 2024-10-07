@@ -20,7 +20,7 @@ whatsappclient.on("ready", () => {
   getEmailsAndSendMsg()
   setInterval(() => {
     try {
-      console.log("Running getEmailsAndSendMsg")
+      console.log("Running getEmailsAndSendMsg in Interval")
       getEmailsAndSendMsg()
     } catch (err) {
       console.error("Error during getEmailsAndSendMsg in interval:", err)
