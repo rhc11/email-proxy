@@ -93,6 +93,8 @@ export const getEmailsAndSendMsg = async () => {
   try {
     const imap = new Imap(imapConfig)
 
+    console.log('Imap ready', imap)
+
     imap.once("ready", () => {
       imap.openBox("INBOX", false, () => {
         console.log("Fetching new emails")
