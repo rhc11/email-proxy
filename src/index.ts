@@ -18,7 +18,14 @@ whatsappclient.on("ready", () => {
   })
   
   getEmailsAndSendMsg()
-  setInterval(getEmailsAndSendMsg, 60000)
+  setInterval(() => {
+    try {
+      console.log("Running getEmailsAndSendMsg")
+      getEmailsAndSendMsg()
+    } catch (err) {
+      console.error("Error during getEmailsAndSendMsg in interval:", err)
+    }
+  }, 60000)
 })
 
 app.get("/health", async (_, reply) => {
