@@ -83,6 +83,80 @@ const getMessageValues = (text: string): MsgValues | undefined => {
   }
 }
 
+const processEmailAndMsg = async (
+  imap: Imap | null
+) => {
+  if (!imap) {
+    console.log('Not imap to process')
+    return
+  }
+
+  imap.openBox("INBOX", false, () => {
+    console.log("Fetching new emails")
+    imap.search(["UNSEEN"], (_err, results) => {
+      if (results.length > 0) {
+        const f = imap.fetch(results, { bodies: "" })
+
+        f?.on("message", (msg) => {
+          msg.on("body", (stream) => {
+            var buffer = ""
+
+            stream.on("data", function (chunk) {
+              buffer += chunk.toString("utf8")
+            })
+
+            stream.once("end", function () {
+              simpleParser(buffer, async (_err, parsed) => {
+                const emailText = getEmailString(parsed.from?.text ?? "")
+
+                const email = isValidEmail(emailText)
+                  ? emailText
+                  : undefined
+
+                if (email) {
+                  const msgValues = getMessageValues(parsed.text ?? "")
+
+                  if (msgValues) {
+                    const msg = buildMessage(msgValues)
+                    whatsappclient.sendMessage(
+                      `${msgValues.phone}@c.us`,
+                      msg
+                    )
+                    console.log("Msg: ", msg)
+                    whatsappclient.sendMessage(
+                      `${msgValues.phone}@c.us`,
+                      location
+                    )
+                  }
+                } else {
+                  console.log("Not valid email: ", emailText)
+                }
+              })
+            })
+          })
+
+          msg.once("attributes", (attrs) => {
+            const { uid, date } = attrs
+            imap.addFlags(uid, ["\\Seen"], () => {
+              console.log("Marked as read ", uid, date)
+            })
+          })
+        })
+
+        f.once("error", (ex) => {
+          return Promise.reject(ex)
+        })
+
+        f.once("end", () => {
+          console.log("Done fetching all messages")
+        })
+      } else {
+        console.log("Not new emails found")
+      }
+    })
+  })
+}
+
 let imap: Imap | null = null
 
 export const getEmailsAndSendMsg = async () => {
@@ -94,11 +168,14 @@ export const getEmailsAndSendMsg = async () => {
 
   try {
 
-    if (!imap) {
+    if (imap) {
+      await processEmailAndMsg(imap)
+    } else {
       imap = new Imap(imapConfig)
 
-      imap.once("ready", () => {
+      imap.once("ready", async () => {
         console.log("IMAP connection ready.")
+        await processEmailAndMsg(imap)
       })
 
       imap.once("error", (ex: any) => {
@@ -114,74 +191,6 @@ export const getEmailsAndSendMsg = async () => {
 
       imap.connect()
     }
-
-    imap.once("ready", () => {
-      console.log('Imap ready', imap)
-      imap?.openBox("INBOX", false, () => {
-        console.log("Fetching new emails")
-        imap?.search(["UNSEEN"], (_err, results) => {
-          if (results.length > 0) {
-            const f = imap?.fetch(results, { bodies: "" })
-
-            f?.on("message", (msg) => {
-              msg.on("body", (stream) => {
-                var buffer = ""
-
-                stream.on("data", function (chunk) {
-                  buffer += chunk.toString("utf8")
-                })
-
-                stream.once("end", function () {
-                  simpleParser(buffer, async (_err, parsed) => {
-                    const emailText = getEmailString(parsed.from?.text ?? "")
-
-                    const email = isValidEmail(emailText)
-                      ? emailText
-                      : undefined
-
-                    if (email) {
-                      const msgValues = getMessageValues(parsed.text ?? "")
-
-                      if (msgValues) {
-                        const msg = buildMessage(msgValues)
-                        whatsappclient.sendMessage(
-                          `${msgValues.phone}@c.us`,
-                          msg
-                        )
-                        console.log("Msg: ", msg)
-                        whatsappclient.sendMessage(
-                          `${msgValues.phone}@c.us`,
-                          location
-                        )
-                      }
-                    } else {
-                      console.log("Not valid email: ", emailText)
-                    }
-                  })
-                })
-              })
-
-              msg.once("attributes", (attrs) => {
-                const { uid, date } = attrs
-                imap?.addFlags(uid, ["\\Seen"], () => {
-                  console.log("Marked as read ", uid, date)
-                })
-              })
-            })
-
-            f?.once("error", (ex) => {
-              return Promise.reject(ex)
-            })
-
-            f?.once("end", () => {
-              console.log("Done fetching all messages")
-            })
-          } else {
-            console.log("Not new emails found")
-          }
-        })
-      })
-    })
   } catch (error) {
     console.log("An error has been occured", error)
   }
