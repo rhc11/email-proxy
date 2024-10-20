@@ -161,7 +161,6 @@ const processEmailAndMsg = async (
 let imap: Imap | null = null
 
 export const getEmailsAndSendMsg = async () => {
-  console.log('start getEmailsAndSendMsg')
   try {
     const waState = await whatsappclient.getState()
     console.log('WhatsApp state:', waState)
