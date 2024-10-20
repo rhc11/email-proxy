@@ -155,40 +155,56 @@ const processEmailAndMsg = async (imap: Imap | null) => {
   })
 }
 
-let imap: Imap | null = null
+let imap: any = null
+let isConnecting = false
 
 export const getEmailsAndSendMsg = async () => {
   const waState = await whatsappclient.getState()
   console.log("WhatsApp state:", waState)
 
   if (waState !== "CONNECTED") {
-    console.log("State not conected ", waState)
+    console.log("State not connected ", waState)
     return
   }
 
-  if (imap) {
-    console.log("Imap exist", imap.state)
-    await processEmailAndMsg(imap)
-  } else {
-    console.log("new Imap")
-    imap = new Imap(imapConfig)
+  try {
+    if (imap) {
+      console.log("IMAP exists:", imap.state)
 
-    imap.once("ready", async () => {
-      console.log("IMAP connection ready.")
-      await processEmailAndMsg(imap)
-    })
+      if (imap.state === "authenticated") {
+        await processEmailAndMsg(imap)
+      } else {
+        console.log("IMAP is not yet ready, waiting...")
+      }
+    } else if (!isConnecting) {
+      console.log("Creating new IMAP connection")
+      isConnecting = true
 
-    imap.once("error", (ex: any) => {
-      console.error("IMAP error: ", ex)
-      imap?.end()
-      imap = null
-    })
+      imap = new Imap(imapConfig)
 
-    imap.once("end", () => {
-      console.log("IMAP connection ended.")
-      imap = null
-    })
+      imap.once("ready", async () => {
+        console.log("IMAP connection ready.")
+        isConnecting = false
+        await processEmailAndMsg(imap)
+      })
 
-    imap.connect()
+      imap.once("error", (ex: any) => {
+        console.error("IMAP error: ", ex)
+        imap?.end()
+        imap = null
+        isConnecting = false
+      })
+
+      imap.once("end", () => {
+        console.log("IMAP connection ended.")
+        imap = null
+        isConnecting = false
+      })
+
+      imap.connect()
+    }
+  } catch (error) {
+    console.log("An error has occurred:", error)
+    isConnecting = false
   }
 }
