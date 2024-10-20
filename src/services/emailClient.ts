@@ -70,24 +70,26 @@ const getMessageValues = (text: string): MsgValues | undefined => {
   const phoneWithoutPlus =
     phoneParse[0] === "+" ? phoneParse.slice(1) : phoneParse
 
-  const notPrefixCondition = phoneWithoutPlus.length === 9 && (phoneWithoutPlus.charAt(0) === '6' || phoneWithoutPlus.charAt(0) === '7')
+  const notPrefixCondition =
+    phoneWithoutPlus.length === 9 &&
+    (phoneWithoutPlus.charAt(0) === "6" || phoneWithoutPlus.charAt(0) === "7")
 
-  const phoneWithPrefix = notPrefixCondition ? `34${phoneWithoutPlus}` : phoneWithoutPlus
+  const phoneWithPrefix = notPrefixCondition
+    ? `34${phoneWithoutPlus}`
+    : phoneWithoutPlus
 
   return {
     day: values[0].trim(),
     checkinTime: values[1].trim(),
     phone: phoneWithPrefix,
     room: values[3],
-    code
+    code,
   }
 }
 
-const processEmailAndMsg = async (
-  imap: Imap | null
-) => {
+const processEmailAndMsg = async (imap: Imap | null) => {
   if (!imap) {
-    console.log('Not imap to process')
+    console.log("Not imap to process")
     return
   }
 
@@ -110,19 +112,14 @@ const processEmailAndMsg = async (
               simpleParser(buffer, async (_err, parsed) => {
                 const emailText = getEmailString(parsed.from?.text ?? "")
 
-                const email = isValidEmail(emailText)
-                  ? emailText
-                  : undefined
+                const email = isValidEmail(emailText) ? emailText : undefined
 
                 if (email) {
                   const msgValues = getMessageValues(parsed.text ?? "")
 
                   if (msgValues) {
                     const msg = buildMessage(msgValues)
-                    whatsappclient.sendMessage(
-                      `${msgValues.phone}@c.us`,
-                      msg
-                    )
+                    whatsappclient.sendMessage(`${msgValues.phone}@c.us`, msg)
                     console.log("Msg: ", msg)
                     whatsappclient.sendMessage(
                       `${msgValues.phone}@c.us`,
@@ -161,41 +158,37 @@ const processEmailAndMsg = async (
 let imap: Imap | null = null
 
 export const getEmailsAndSendMsg = async () => {
-  try {
-    const waState = await whatsappclient.getState()
-    console.log('WhatsApp state:', waState)
+  const waState = await whatsappclient.getState()
+  console.log("WhatsApp state:", waState)
 
-    if (waState !== "CONNECTED") {
-      console.log("State not conected ", waState)
-      return
-    }
+  if (waState !== "CONNECTED") {
+    console.log("State not conected ", waState)
+    return
+  }
 
-    if (imap) {
-      console.log('Imap exist', imap.state)
+  if (imap) {
+    console.log("Imap exist", imap.state)
+    await processEmailAndMsg(imap)
+  } else {
+    console.log("new Imap")
+    imap = new Imap(imapConfig)
+
+    imap.once("ready", async () => {
+      console.log("IMAP connection ready.")
       await processEmailAndMsg(imap)
-    } else {
-      console.log('new Imap')
-      imap = new Imap(imapConfig)
+    })
 
-      imap.once("ready", async () => {
-        console.log("IMAP connection ready.")
-        await processEmailAndMsg(imap)
-      })
+    imap.once("error", (ex: any) => {
+      console.error("IMAP error: ", ex)
+      imap?.end()
+      imap = null
+    })
 
-      imap.once("error", (ex: any) => {
-        console.error("IMAP error: ", ex)
-        imap?.end()
-        imap = null
-      })
+    imap.once("end", () => {
+      console.log("IMAP connection ended.")
+      imap = null
+    })
 
-      imap.once("end", () => {
-        console.log("IMAP connection ended.")
-        imap = null
-      })
-
-      imap.connect()
-    }
-  } catch (error) {
-    console.log("An error has been occured", error)
+    imap.connect()
   }
 }
