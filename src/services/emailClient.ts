@@ -155,7 +155,7 @@ const processEmailAndMsg = async (imap: Imap | null) => {
   })
 }
 
-let imap: any = null
+let imap: Imap | any = null
 let isConnecting = false
 
 export const getEmailsAndSendMsg = async () => {
@@ -190,7 +190,7 @@ export const getEmailsAndSendMsg = async () => {
 
       imap.once("error", (ex: any) => {
         console.error("IMAP error: ", ex)
-        imap?.end()
+        imap.end()
         imap = null
         isConnecting = false
       })
@@ -201,10 +201,17 @@ export const getEmailsAndSendMsg = async () => {
         isConnecting = false
       })
 
+      imap.once("close", (hadError: any) => {
+        console.log("IMAP connection closed. Had error:", hadError)
+        imap = null
+        isConnecting = false
+      })
+
       imap.connect()
     }
   } catch (error) {
     console.log("An error has occurred:", error)
+    imap = null
     isConnecting = false
   }
 }

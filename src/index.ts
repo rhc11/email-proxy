@@ -18,7 +18,7 @@ whatsappclient.on("ready", () => {
   })
   
   getEmailsAndSendMsg()
-  setInterval(getEmailsAndSendMsg, 60000)
+  setInterval(getEmailsAndSendMsg, 90000)
 })
 
 app.get("/health", async (_, reply) => {
